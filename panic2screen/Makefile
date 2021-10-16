@@ -5,6 +5,7 @@ ccflags-y := -std=gnu99 -Wno-declaration-after-statement -Werror
 all:
 	make -C ../kernel M=$(PWD) ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- modules
 	arm-linux-gnueabihf-strip -g panic2screen.ko
+	sha256sum panic2screen.ko > panic2screen.sha256
 
 run: all
 	adb shell rm -f /tmp/panic2screen.ko
@@ -16,3 +17,4 @@ run: all
 
 clean:
 	make -C ../kernel M=$(PWD) ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- clean
+	rm -f panic2screen.sha256

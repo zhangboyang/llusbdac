@@ -1,4 +1,5 @@
 // draw status to screen
+// various code snippets copied from vendor kernel (under GPLv2)
 
 #include <linux/module.h>
 #include <linux/kthread.h>
@@ -20,24 +21,25 @@ static unsigned char text_buf[TEXTAREA_H][TEXTAREA_W];
 static unsigned char color_buf[TEXTAREA_H][TEXTAREA_W];
 
 enum {
-    FG_WHITE,
-    FG_RED,
-    FG_GREEN,
-    FG_BLUE,
-    FG_YELLOW,
+    IDX_WHITE,
+    IDX_RED,
+    IDX_GREEN,
+    IDX_BLUE,
+    IDX_YELLOW,
+    IDX_TRANSPARENT,
     MAX_COLOR // END
 };
 static const char color_map[256] = {
-    ['w'] = FG_WHITE,
-    ['r'] = FG_RED,
-    ['g'] = FG_GREEN,
-    ['b'] = FG_BLUE,
-    ['y'] = FG_YELLOW,
+    ['w'] = IDX_WHITE,
+    ['r'] = IDX_RED,
+    ['g'] = IDX_GREEN,
+    ['b'] = IDX_BLUE,
+    ['y'] = IDX_YELLOW,
 };
 
 static void print(int y, int x, char *str)
 {
-    unsigned char color = FG_WHITE;
+    unsigned char color = IDX_WHITE;
     int yy = y, xx = x;
     char ch;
     while ((ch = *str++)) {
@@ -72,13 +74,14 @@ static char __iomem *gui_vmem;
 static unsigned long gui_pmem;
 static unsigned long gui_pitch;
 
-#define BG_COLOR ((255*80/100)<<24)
-static unsigned color_palette[MAX_COLOR] = {
-    [FG_WHITE]  = 0xFFAAAAAA,
-    [FG_RED]    = 0xFFFF0000,
-    [FG_GREEN]  = 0xFF00AA00,
-    [FG_BLUE]   = 0xFF00AAAA,
-    [FG_YELLOW] = 0xFFAAAA00,
+#define ARGB_SHADOW ((255*80/100)<<24)
+static unsigned color_palette[MAX_COLOR][2] = {
+    [IDX_WHITE]  = { 0xFFAAAAAA, ARGB_SHADOW },
+    [IDX_RED]    = { 0xFFFF0000, ARGB_SHADOW },
+    [IDX_GREEN]  = { 0xFF00AA00, ARGB_SHADOW },
+    [IDX_BLUE]   = { 0xFF00AAAA, ARGB_SHADOW },
+    [IDX_YELLOW] = { 0xFFAAAA00, ARGB_SHADOW },
+    [IDX_TRANSPARENT] = { -1, 0 },
 };
 
 #define LUT_BITS 4
@@ -91,10 +94,12 @@ static pixel_block pixel_lut[MAX_COLOR][LUT_KEYS];
 static void make_lut(void)
 {
     printk("fontdata_16x32=%p pixel_lut=%p lut_size=%d\n", fontdata_16x32, pixel_lut, sizeof(pixel_lut));
-    for (int fg = 0; fg < MAX_COLOR; fg++) {
+    for (int idx = 0; idx < MAX_COLOR; idx++) {
+        unsigned fg = color_palette[idx][0];
+        unsigned bg = color_palette[idx][1];
         for (int key = 0; key < LUT_KEYS; key++) {
             for (int bit = 0; bit < LUT_BITS; bit++) {
-                pixel_lut[fg][key].pixels[bit] = (key & (1 << (LUT_BITS - bit - 1))) ? color_palette[fg] : BG_COLOR;
+                pixel_lut[idx][key].pixels[bit] = (key & (1 << (LUT_BITS - bit - 1))) ? fg : bg;
             }
         }
     }
@@ -104,9 +109,9 @@ static void draw_gui(void)
     for (int i = 0; i < TEXTAREA_H; i++) {
         for (int j = 0; j < TEXTAREA_W; j++) {
             char *ptr = gui_vmem + i * FONT_HEIGHT * gui_pitch + j * FONT_WIDTH * 4;
-            u8 ch = text_buf[i][j], fg = color_buf[i][j];
+            u8 ch = text_buf[i][j], idx = color_buf[i][j];
             u16 *ft = (void *) (FONT_DATA + ch * FONT_HEIGHT * FONT_PITCH);
-            pixel_block *sub_table = pixel_lut[fg];
+            pixel_block *sub_table = pixel_lut[idx];
             BUILD_BUG_ON(FONT_WIDTH != 16 || LUT_BITS != 4);
             __asm__ __volatile__ (
                 "1:"
@@ -150,6 +155,7 @@ static void draw_gui(void)
 ////// SUPER DIRTY HACK: overlay our gui on top of framebuffer
 //////
 
+// copied from MTK kernel code (GPLv2)  ---  Copyright (C) 2011-2015 MediaTek Inc.
 enum OVL_LAYER_SOURCE {
     OVL_LAYER_SOURCE_MEM    = 0,
     OVL_LAYER_SOURCE_RESERVED = 1,
@@ -387,16 +393,25 @@ static void do_dirty_hack(int en)
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-#define MAX_GUI_PAGE 3
+enum {
+    GUI_STATE,
+    GUI_TRACK_CRC32,
+    GUI_TRACK_TIME,
+    GUI_ABOUT,
+    MAX_GUI_PAGE
+};
 volatile int gui_page = 0;
 static void llusbdac_input_event(struct input_handle *handle, unsigned int type, unsigned int code, int value)
 {
     printk("llusbdac_input_event(%p, %u, %u, %d)\n", handle, type, code, value);
     if (type == 1 && value == 1) {
+        int d = 0;
         switch (code) {
-        case 105: case 106: case 28:
-            gui_page = (gui_page + 1) % MAX_GUI_PAGE;
-            break;
+        case 105: d = -1; break;
+        case 106: case 28: d = 1; break;
+        }
+        if (d != 0 && gui_enabled > 0) {
+            gui_page = (gui_page + d + MAX_GUI_PAGE) % MAX_GUI_PAGE;
         }
     }
 }
@@ -412,11 +427,13 @@ static int llusbdac_input_connect(struct input_handler *handler,
     llusbdac_input_handle.handler = handler;
     llusbdac_input_handle.name = "llusbdac_input";
     if ((error = input_register_handle(&llusbdac_input_handle)))
-        goto fail;
+        goto fail_cleanup;
     if ((error = input_open_device(&llusbdac_input_handle)))
-        goto fail;
+        goto fail_unregister;
     return 0;
-fail:
+fail_unregister:
+    input_unregister_handle(&llusbdac_input_handle);
+fail_cleanup:
     memset(&llusbdac_input_handle, 0, sizeof(llusbdac_input_handle));
     return error;
 }
@@ -453,16 +470,20 @@ volatile uac_stats_t uac_stats;
 #define MAX_TRACK_CRC 100
 #define MAX_TRACK_CRC_DISPLAY 17
 typedef struct {
-    u32 full_crc;
-    
-    u32 track_crc[MAX_TRACK_CRC];
-    u8 track_id[MAX_TRACK_CRC];
-    u8 track_state[MAX_TRACK_CRC];
+    u32 full_crc32;
+    struct {
+        u32 crc32;
+        u8 id;
+        u8 state;
+        unsigned sample_rate;
+        unsigned sample_bits;
+        u64 n_frames;
+    } track[MAX_TRACK_CRC];
     u8 now_track;
     int disp_ptr;
 } crc32_stats_t;
 enum {
-    TRACK_STATE_NORMAL,
+    TRACK_STATE_NORMAL = 0,
     TRACK_STATE_ERROR,
     TRACK_STATE_VERIFIED,
 };
@@ -482,24 +503,30 @@ void crc32mgr_init(unsigned silent_threshold_ms)
 }
 static void crc32mgr_nexttrack(void)
 {
-    if (ztcrc32_started(&ztcrc32_track) && crc32_stats.track_id[crc32_stats.disp_ptr]) {
-        if (crc32_stats.track_state[crc32_stats.disp_ptr] != TRACK_STATE_ERROR) {
+    if (ztcrc32_started(&ztcrc32_track) && crc32_stats.track[crc32_stats.disp_ptr].id) {
+        if (crc32_stats.track[crc32_stats.disp_ptr].state != TRACK_STATE_ERROR) {
             for (int i = 0; i < MAX_TRACK_CRC; i++) {
-                if (i != crc32_stats.disp_ptr && crc32_stats.track_id[i] && crc32_stats.track_state[i] != TRACK_STATE_ERROR) {
-                    if (crc32_stats.track_crc[i] == crc32_stats.track_crc[crc32_stats.disp_ptr]) {
-                        crc32_stats.track_state[i] = TRACK_STATE_VERIFIED;
-                        crc32_stats.track_state[crc32_stats.disp_ptr] = TRACK_STATE_VERIFIED;
+                if (i != crc32_stats.disp_ptr && crc32_stats.track[i].id && crc32_stats.track[i].state != TRACK_STATE_ERROR) {
+                    if (crc32_stats.track[i].crc32 == crc32_stats.track[crc32_stats.disp_ptr].crc32 &&
+                        crc32_stats.track[i].sample_rate == crc32_stats.track[crc32_stats.disp_ptr].sample_rate &&
+                        crc32_stats.track[i].sample_bits == crc32_stats.track[crc32_stats.disp_ptr].sample_bits &&
+                        crc32_stats.track[i].n_frames == crc32_stats.track[crc32_stats.disp_ptr].n_frames) {
+                        crc32_stats.track[i].state = TRACK_STATE_VERIFIED;
+                        crc32_stats.track[crc32_stats.disp_ptr].state = TRACK_STATE_VERIFIED;
                     }
                 }
             }
         }
-        printk("end of track detected: %d: %08X state=%d\n",
-            crc32_stats.track_id[crc32_stats.disp_ptr], crc32_stats.track_crc[crc32_stats.disp_ptr], crc32_stats.track_state[crc32_stats.disp_ptr]);
+        printk("end of track detected: %d: %08X  state=%d rate=%u bits=%u frames=%llu\n",
+            crc32_stats.track[crc32_stats.disp_ptr].id,
+            crc32_stats.track[crc32_stats.disp_ptr].crc32,
+            crc32_stats.track[crc32_stats.disp_ptr].state,
+            crc32_stats.track[crc32_stats.disp_ptr].sample_rate,
+            crc32_stats.track[crc32_stats.disp_ptr].sample_bits,
+            crc32_stats.track[crc32_stats.disp_ptr].n_frames);
         crc32_stats.now_track = crc32_stats.now_track == 99 ? 1 : crc32_stats.now_track + 1;
         crc32_stats.disp_ptr = (crc32_stats.disp_ptr + 1) % MAX_TRACK_CRC;
-        crc32_stats.track_id[crc32_stats.disp_ptr] = 0;
-        crc32_stats.track_state[crc32_stats.disp_ptr] = TRACK_STATE_NORMAL;
-        crc32_stats.track_crc[crc32_stats.disp_ptr] = 0;
+        memset((void *)&crc32_stats.track[crc32_stats.disp_ptr], 0, sizeof(crc32_stats.track[crc32_stats.disp_ptr]));
         ztcrc32_reset(&ztcrc32_track);
     }
 }
@@ -511,19 +538,22 @@ void crc32mgr_reset(void)
     memset(&crc32_err, 0, sizeof(crc32_err));
     ztcrc32_track_timestamp = ktime_get_boottime_ns();
 }
-void crc32mgr_update(const void *restrict data, size_t len, unsigned sample_bits)
+void crc32mgr_update(const void *restrict data, size_t len, unsigned sample_rate, unsigned sample_bits)
 {
     ztcrc32_update_samples(&ztcrc32_full, data, len, sample_bits);
-    crc32_stats.full_crc = ztcrc32_get(&ztcrc32_full);
+    crc32_stats.full_crc32 = ztcrc32_get(&ztcrc32_full);
 
-    crc32_stats.track_id[crc32_stats.disp_ptr] = crc32_stats.now_track;
+    crc32_stats.track[crc32_stats.disp_ptr].id = crc32_stats.now_track;
     if (ztcrc32_update_samples(&ztcrc32_track, data, len, sample_bits)) {
         ztcrc32_track_timestamp = ktime_get_boottime_ns();
-        crc32_stats.track_crc[crc32_stats.disp_ptr] = ztcrc32_get(&ztcrc32_track);
+        crc32_stats.track[crc32_stats.disp_ptr].crc32 = ztcrc32_get(&ztcrc32_track);
+        crc32_stats.track[crc32_stats.disp_ptr].n_frames = ztcrc32_cnt(&ztcrc32_track);
+        crc32_stats.track[crc32_stats.disp_ptr].sample_rate = sample_rate;
+        crc32_stats.track[crc32_stats.disp_ptr].sample_bits = sample_bits;
         static uac_stats_err_t cur_err;
         cur_err = uac_stats.err;
         if (memcmp(&cur_err, &crc32_err, sizeof(cur_err)) != 0) {
-            crc32_stats.track_state[crc32_stats.disp_ptr] = TRACK_STATE_ERROR;
+            crc32_stats.track[crc32_stats.disp_ptr].state = TRACK_STATE_ERROR;
             crc32_err = cur_err;
         }
     } else if (ktime_get_boottime_ns() - ztcrc32_track_timestamp > 1000000ULL * crc32mgr_threshold) {
@@ -535,8 +565,18 @@ void crc32mgr_update(const void *restrict data, size_t len, unsigned sample_bits
 
 static void update_text(void)
 {
+    if (gui_enabled < 0) {
+        memset(text_buf, ' ', sizeof(text_buf));
+        memset(color_buf, IDX_TRANSPARENT, sizeof(color_buf));
+        print(0, 0, "$g    LLUSBDAC is working    \n"
+                    "$yWALKMAN not in USB DAC mode\n"
+                    "$b reboot to unload LLUSBDAC ");
+        return;
+    }
+
     memset(text_buf, ' ', sizeof(text_buf));
-    memset(color_buf, FG_WHITE, sizeof(color_buf));
+    memset(color_buf, IDX_WHITE, sizeof(color_buf));
+    //if (gui_page == GUI_ABOUT) { for (int i = 0; i < 256; i++) ((char*)text_buf)[i] = i; return;}
     for (int i = 1; i < TEXTAREA_H - 1; i++) {
         text_buf[i][0] = text_buf[i][TEXTAREA_W - 1] = '\xB3';
     }
@@ -557,7 +597,7 @@ static void update_text(void)
     s = uac_stats;
     c = crc32_stats;
 
-    if (gui_page == 0) {
+    if (gui_page == GUI_STATE) {
         int hh = 0, mm = 0, ss = 0, ms = 0;
         unsigned buftime = 0;
         if (s.sample_rate) {
@@ -586,7 +626,7 @@ static void update_text(void)
             s.running ? "$b" : "", s.sample_rate, s.running ? "$b" : "", s.sample_bits,
             s.running ? "$g" : "", hh, mm, ss, ms,
             s.running ? "$g" : "", s.n_frames,
-            s.running ? "$y" : "", c.full_crc,
+            s.running ? "$y" : "", c.full_crc32,
             s.running ? "$b" : "", buftime / 10, buftime % 10,
             s.running && n_errors ? (s.err.overrun > last_err.overrun ? "$r" : "$y") : "", min_t(u64, 999, s.err.overrun),
             s.running && n_errors ? (s.err.underrun > last_err.underrun ? "$r" : "$y") : "", min_t(u64, 999, s.err.underrun),
@@ -594,34 +634,53 @@ static void update_text(void)
         );
         print(2, 3, str);
 
-    } else if (gui_page == 1) {
+    } else if (gui_page == GUI_TRACK_CRC32 || gui_page == GUI_TRACK_TIME) {
         for (int i = (c.disp_ptr - MAX_TRACK_CRC_DISPLAY + 1 + MAX_TRACK_CRC) % MAX_TRACK_CRC, j = 0; j < MAX_TRACK_CRC_DISPLAY; i = (i + 1) % MAX_TRACK_CRC, j++) {
             const char *cc;
             if (i == c.disp_ptr)
-                cc = s.running ? (c.track_state[i] == TRACK_STATE_ERROR ? "$r" : "$y") : "$w";
+                cc = s.running ? (c.track[i].state == TRACK_STATE_ERROR ? "$r" : "$y") : "$w";
             else
-                cc = c.track_id[i] ? (c.track_state[i] == TRACK_STATE_ERROR ? "$r" : (c.track_state[i] == TRACK_STATE_VERIFIED ? "$g" : "$w")) : "$w";
-            if (c.track_id[i])
-                snprintf(str, sizeof(str), "%s%02d:%08X$w", cc, c.track_id[i], c.track_crc[i]);
-            else
-                snprintf(str, sizeof(str), "%s--:--------$w", cc);
+                cc = c.track[i].id ? (c.track[i].state == TRACK_STATE_ERROR ? "$r" : (c.track[i].state == TRACK_STATE_VERIFIED ? "$g" : "$w")) : "$w";            
+            if (gui_page == GUI_TRACK_CRC32) {
+                if (c.track[i].id)
+                    snprintf(str, sizeof(str), "%s%02d:%08X$w", cc, c.track[i].id, c.track[i].crc32);
+                else
+                    snprintf(str, sizeof(str), "%s--:--------$w", cc);
+            } else {
+                if (c.track[i].id) {
+                    int hh = 0, mm = 0, ss = 0;
+                    if (c.track[i].sample_rate) {
+                        ss = div_u64(c.track[i].n_frames, c.track[i].sample_rate);
+                        hh = ss / 3600;
+                        ss %= 3600;
+                        mm = ss / 60;
+                        ss %= 60;
+                        if (hh > 99) {
+                            hh = mm = ss = 99;
+                        }
+                    }
+                    snprintf(str, sizeof(str), "%s%02d\xFA%02d:%02d:%02d$w", cc, c.track[i].id, hh, mm, ss);
+                } else {
+                    snprintf(str, sizeof(str), "%s--\xFA--------$w", cc);
+                }
+            }
             if (j < MAX_TRACK_CRC_DISPLAY / 2)
                 print(1 + j, 2, str);
             else
                 print(1 + j - MAX_TRACK_CRC_DISPLAY / 2, 2 + 3 + 8 + 1, str);
         }
-        snprintf(str, sizeof(str), "$bTRACK CRC32$w");
+        snprintf(str, sizeof(str), "$b%s$w", gui_page == GUI_TRACK_CRC32 ? "TRACK CRC32" : " TRACK TIME");
         print(1 + MAX_TRACK_CRC_DISPLAY / 2, 2, str);
 
-    } else if (gui_page == 2) {
+    } else if (gui_page == GUI_ABOUT) {
         snprintf(str, sizeof(str),
-            "      $gLL-USBDAC$w\n"
-            "       ver %s\n"
+            "    $gLLUSBDAC$w v%s\n"
             "\n"
             "$bZhang Boyang$w (C) $b2021$w\n"
-            "     (GNU GPLv2)\n"
             "\n"
-            " $ygithub: zhangboyang$w",
+            "     $b(GNU GPLv2)$w\n"
+            "\n"
+            " $ygithub: zhangboyang$w\n",
             LLUSBDAC_VERSTRING
         );
         print(2, 3, str);

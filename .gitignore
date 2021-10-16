@@ -1,0 +1,14 @@
+.*
+!.gitignore
+linux-kernel-3.10.26.tar.gz
+kernel
+gcc-linaro-4.9.4-2017.01-x86_64_arm-linux-gnueabihf.tar.xz
+toolchain
+setpath
+*.o
+*.ko
+*.mod.c
+*.mod.o
+Module.symvers
+modules.order
+*.sha256

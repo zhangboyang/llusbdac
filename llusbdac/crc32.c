@@ -1,3 +1,5 @@
+// zero-trimmed crc32
+
 #include <linux/module.h>
 
 #include "llusbdac.h"
@@ -21,7 +23,7 @@ void ztcrc32_reset(struct zero_trimmed_crc32 *ctx)
     memset(ctx, 0, sizeof(*ctx));
 }
 
-static __always_inline int __ztcrc32_update(struct zero_trimmed_crc32 *ctx, const void *restrict data, size_t len, int group, int skip, int valid)
+static __always_inline int __ztcrc32_update(struct zero_trimmed_crc32 *restrict ctx, const void *restrict data, size_t len, int group, int skip, int valid)
 {
     BUG_ON(len % (group * (skip + valid)) != 0);
     int updated = 0;
@@ -50,30 +52,32 @@ static __always_inline int __ztcrc32_update(struct zero_trimmed_crc32 *ctx, cons
             ptr += skip;
             for (int j = 0; j < valid; j++) {
                 u8 b = *ptr++;
-                ctx->crc32 = table[(u8)ctx->crc32 ^ b] ^ ctx->crc32 >> 8;
+                ctx->crc32_ltrim = table[(u8)ctx->crc32_ltrim ^ b] ^ ctx->crc32_ltrim >> 8;
                 o |= b;
             }
         }
+        ctx->count_ltrim++;
         if (o) {
-            ctx->crc32_trimmed = ctx->crc32;
+            ctx->crc32_trim = ctx->crc32_ltrim;
+            ctx->count_trim = ctx->count_ltrim;
             updated = 1;
         }
     }
     return updated;
 }
-static noinline int ztcrc32_update_2_0_2(struct zero_trimmed_crc32 *ctx, const void *restrict data, size_t len)
+static noinline int ztcrc32_update_2_0_2(struct zero_trimmed_crc32 *restrict ctx, const void *restrict data, size_t len)
 {
     return __ztcrc32_update(ctx, data, len, 2, 0, 2);
 }
-static noinline int ztcrc32_update_2_1_3(struct zero_trimmed_crc32 *ctx, const void *restrict data, size_t len)
+static noinline int ztcrc32_update_2_1_3(struct zero_trimmed_crc32 *restrict ctx, const void *restrict data, size_t len)
 {
     return __ztcrc32_update(ctx, data, len, 2, 1, 3);
 }
-static noinline int ztcrc32_update_2_0_4(struct zero_trimmed_crc32 *ctx, const void *restrict data, size_t len)
+static noinline int ztcrc32_update_2_0_4(struct zero_trimmed_crc32 *restrict ctx, const void *restrict data, size_t len)
 {
     return __ztcrc32_update(ctx, data, len, 2, 0, 4);
 }
-int ztcrc32_update_samples(struct zero_trimmed_crc32 *ctx, const void *restrict data, size_t len, unsigned sample_bits)
+int ztcrc32_update_samples(struct zero_trimmed_crc32 *restrict ctx, const void *restrict data, size_t len, unsigned sample_bits)
 {
     switch (sample_bits) {
     case 16: return ztcrc32_update_2_0_2(ctx, data, len);
@@ -83,12 +87,16 @@ int ztcrc32_update_samples(struct zero_trimmed_crc32 *ctx, const void *restrict 
     }
 }
 
-u32 ztcrc32_get(struct zero_trimmed_crc32 *ctx)
-{
-    return ctx->crc32_trimmed;
-}
-
 int ztcrc32_started(struct zero_trimmed_crc32 *ctx)
 {
     return ctx->started;
+}
+
+u32 ztcrc32_get(struct zero_trimmed_crc32 *ctx)
+{
+    return ctx->crc32_trim;
+}
+u64 ztcrc32_cnt(struct zero_trimmed_crc32 *ctx)
+{
+    return ctx->count_trim;
 }

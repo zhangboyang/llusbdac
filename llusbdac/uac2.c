@@ -980,7 +980,7 @@ void uac2_unbind_config(struct usb_configuration *cfg)
 {
 	printk("uac2_unbind_config\n");
 	//do_dirty_musb_hook(0, gadget_to_musb(cfg->cdev->gadget));
-	enable_gui(0);
+	enable_gui(-1);
 
 	kfree(agdev_g);
 	agdev_g = NULL;

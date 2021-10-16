@@ -18,8 +18,14 @@ static struct android_usb_function **p_supported_functions;
 #define supported_functions p_supported_functions
 
 /////////////////////////////////////////////////////////////////////
-//	android headers     from  drivers/usb/gadget/android.c
+/*
+	heavily modified  from  drivers/usb/gadget/android.c  (GPLv2)
 
+	* Copyright (C) 2008 Google, Inc.
+	* Author: Mike Lockwood <lockwood@android.com>
+	*         Benoit Goby <benoit@android.com>
+	* Copyright (C) 2017 Mediatek Inc.
+*/
 struct android_dev {
 	struct android_usb_function **functions;
 	struct list_head enabled_functions;
@@ -329,7 +335,7 @@ static void enable_audio_func(int en)
 			"trap '' HUP TERM INT PIPE; exec > /dev/null; exec 2>&1; set -x;"
 			"echo 0 > /sys/class/android_usb/android0/enable;"
 			"F=$(sed -e 's/audio_func,//' -e 's/,audio_func//' -e 's/audio_func//' /sys/class/android_usb/android0/functions);"
-			"if [ -z \"$F\"]; then F=audio_func; else F=audio_func,$F; fi;"
+			"if [ -z \"$F\" ]; then F=audio_func; else F=audio_func,$F; fi;"
 			"echo $F > /sys/class/android_usb/android0/functions;"
 			"echo 1 > /sys/class/android_usb/android0/enable;"
 			"exit 0;"
@@ -340,7 +346,7 @@ static void enable_audio_func(int en)
 			"trap '' HUP TERM INT PIPE; exec > /dev/null; exec 2>&1; set -x;"
 			"if grep -q audio_func /sys/class/android_usb/android0/functions; then"
 			"  echo 0 > /sys/class/android_usb/android0/enable;"
-			"  F=$(sed -e 's/audio_func,//' -e 's/,audio_func//' -e 's/audio_func//' /sys/class/android_usb/android0/functions);"
+			"  F=$(sed -e 's/audio_func,//' -e 's/,audio_func//' -e 's/audio_func/dummy/' /sys/class/android_usb/android0/functions);"
 			"  echo $F > /sys/class/android_usb/android0/functions;"
 			"  echo 1 > /sys/class/android_usb/android0/enable;"
 			"fi;"

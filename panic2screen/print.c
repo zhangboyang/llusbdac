@@ -1,6 +1,6 @@
 // dump panic message to screen
 // for NW-ZX300A only
-// various code snippets copied from vendor kernel (under GPL)
+// various code snippets copied from vendor kernel (under GPLv2)
 
 #define DUMP_ALL_KMSG 1
 #define DUMP_TRACE    1
@@ -151,6 +151,7 @@ static void render_fb(void)
 		printk("lcm_drv[%d]=%p\n", i, lcm_drv[i]);
 	}*/
 
+// copied from MTK kernel code (GPLv2)  ---  Copyright (C) 2011-2015 MediaTek Inc.
 /*{
 #define MAKE_MTK_FB_FORMAT_ID(id, bpp)  (((id) << 8) | (bpp))
 typedef enum
@@ -285,6 +286,7 @@ void (*mtkfb_dump_layer_info)(void) = (void *) kallsyms_lookup_name("mtkfb_dump_
 mtkfb_dump_layer_info();
 */
 
+// copied from MTK kernel code (GPLv2)  ---  Copyright (C) 2011-2015 MediaTek Inc.
 enum OVL_LAYER_SOURCE {
     OVL_LAYER_SOURCE_MEM    = 0,
     OVL_LAYER_SOURCE_RESERVED = 1,

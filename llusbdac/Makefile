@@ -4,9 +4,11 @@ obj-m += llusbdac.o
 ccflags-y := -DDEBUG -O2 -std=gnu99 -Wno-declaration-after-statement -Werror
 
 all:
+	(cd ../safeloader; make)
 	(cd ../panic2screen; make)
 	make -C ../kernel M=$(PWD) ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- modules
 	arm-linux-gnueabihf-strip -g llusbdac.ko
+	sha256sum llusbdac.ko > llusbdac.sha256
 
 run: all
 	(cd ../panic2screen; make run)
@@ -20,5 +22,7 @@ run: all
 	adb shell dmesg -c
 
 clean:
+	(cd ../safeloader; make clean)
 	(cd ../panic2screen; make clean)
 	make -C ../kernel M=$(PWD) ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- clean
+	rm -f llusbdac.sha256

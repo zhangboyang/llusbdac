@@ -43,7 +43,7 @@ typedef struct {
 extern volatile uac_stats_t uac_stats;
 extern void crc32mgr_init(unsigned silent_threshold_ms);
 extern void crc32mgr_reset(void);
-extern void crc32mgr_update(const void *restrict data, size_t len, unsigned sample_rate);
+extern void crc32mgr_update(const void *restrict data, size_t len, unsigned sample_rate, unsigned sample_bits);
 extern void init_gui(void);
 extern void cleanup_gui(void);
 extern void enable_gui(int en);
@@ -57,14 +57,17 @@ extern void stop_player(void);
 
 struct zero_trimmed_crc32 {
     int started;
-    u32 crc32;
-    u32 crc32_trimmed;
+    u32 crc32_ltrim;
+    u32 crc32_trim;
+    u64 count_ltrim;
+    u64 count_trim;
 };
 extern void ztcrc32_init(void);
-extern int ztcrc32_update_samples(struct zero_trimmed_crc32 *ctx, const void *restrict data, size_t len, unsigned sample_bits);
+extern int ztcrc32_update_samples(struct zero_trimmed_crc32 *restrict ctx, const void *restrict data, size_t len, unsigned sample_bits);
 extern void ztcrc32_reset(struct zero_trimmed_crc32 *ctx);
-extern u32 ztcrc32_get(struct zero_trimmed_crc32 *ctx);
 extern int ztcrc32_started(struct zero_trimmed_crc32 *ctx);
+extern u32 ztcrc32_get(struct zero_trimmed_crc32 *ctx);
+extern u64 ztcrc32_cnt(struct zero_trimmed_crc32 *ctx);
 
 
 

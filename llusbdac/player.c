@@ -1,3 +1,5 @@
+// in-kernel alsa player
+
 #include <linux/module.h>
 #include <linux/kthread.h>
 #include <linux/kallsyms.h>
@@ -589,7 +591,7 @@ prepare:
             unsigned result_bytes = f2bytes(xferi.result, reader_buf->sample_bits);
             //printk("xferi.result=%lu (%u bytes)\n", xferi.result, result_bytes);
             uac_stats.n_frames += xferi.result;
-            crc32mgr_update(d1, result_bytes, reader_buf->sample_bits);
+            crc32mgr_update(d1, result_bytes, reader_buf->sample_rate, reader_buf->sample_bits);
             ringbuf_pop(result_bytes);
 
             cur_history.result_bytes = result_bytes;

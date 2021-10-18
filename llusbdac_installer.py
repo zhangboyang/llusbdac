@@ -20,6 +20,11 @@ import win32gui
 import win32event
 import wmi
 
+try:
+    ctypes.windll.user32.SetProcessDPIAware()
+except:
+    pass
+
 def die(status):
     win32api.TerminateProcess(win32api.GetCurrentProcess(), status)
 def die_after(status, sec):
@@ -507,12 +512,12 @@ try:
             gen_file(llusbdac_ko, b"/system/lib/modules/llusbdac.ko")
             checksum.append(hashlib.sha256(llusbdac_ko).hexdigest().encode() + b"  llusbdac.ko")
             cmd.append(b"insmod /system/lib/modules/llusbdac.ko")
-        gen_file(b"\n".join(checksum) + b"\n", b"/system/lib/modules/llusbdac.sha256sum")
+        gen_file(b"\n".join(checksum) + b"\n", b"/system/lib/modules/llusbdac.sha256")
         script.append(b"cat << 'EOF' >> '/system/bin/load_sony_driver'")
         script.append(b"")
         script.append(b"(")
         script.append(b"  cd /system/lib/modules")
-        script.append(b"  if busybox sha256sum -c llusbdac.sha256sum; then")
+        script.append(b"  if busybox sha256sum -c llusbdac.sha256; then")
         script.append(b"    insmod safeloader.ko 'script=\"%s\"'" % b";".join(cmd))
         script.append(b"  fi")
         script.append(b")")
@@ -532,13 +537,13 @@ try:
 
     # run launcher
     ProgressManager.progress(S["RUN_LAUNCHER"])
-    si = win32process.STARTUPINFO()
-    si.dwFlags = win32con.STARTF_USESHOWWINDOW
-    si.wShowWindow = win32con.SW_MINIMIZE
     try:
         win32file.DeleteFile(os.path.abspath(package_exe) + ":Zone.Identifier")
     except:
         pass
+    si = win32process.STARTUPINFO()
+    si.dwFlags = win32con.STARTF_USESHOWWINDOW
+    si.wShowWindow = win32con.SW_MINIMIZE
     hProcess, hThread, dwProcessId, dwThreadId = win32process.CreateProcess(package_exe, None, None, None, 0, 0, None, None, si)
     def launcher_alive():
         return win32process.GetExitCodeProcess(hProcess) == win32con.STILL_ACTIVE

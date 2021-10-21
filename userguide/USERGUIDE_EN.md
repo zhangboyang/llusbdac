@@ -12,7 +12,9 @@ Installer only supports Windows operating system. However, after installation in
 
 ## Installation
 
-Connect your device to a computer as "USB mass storage device". Then run `llusbdac_installer.exe` and follow instructions on screen.
+1. Download `NW-ZX300_V2_02.exe` from [sony website](https://www.sony.com/electronics/support/digital-music-players-nw-nwz-zx-series/nw-zx300/downloads/00016328), put it along with `llusbdac_installer.exe`.
+2. Connect your device to a computer as "USB mass storage device".
+3. Run `llusbdac_installer.exe` and follow instructions on screen.
 
 ## Usage
 
@@ -57,4 +59,4 @@ Sample results:
 
 ## Source code
 
-&emsp;&emsp;This program is released under GPLv2. You can get the source code from [GitHub](https://github.com/zhangboyang/llusbdac).
+This program is released under GPLv2. You can get the source code from [GitHub](https://github.com/zhangboyang/llusbdac).

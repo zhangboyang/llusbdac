@@ -20,11 +20,6 @@ import win32gui
 import win32event
 import wmi
 
-try:
-    ctypes.windll.user32.SetProcessDPIAware()
-except:
-    pass
-
 def die(status):
     win32api.TerminateProcess(win32api.GetCurrentProcess(), status)
 def die_after(status, sec):
@@ -33,8 +28,13 @@ def die_after(status, sec):
         die(status)
     threading.Thread(target=die_fn).start()
 
+try:
+    ctypes.windll.user32.SetProcessDPIAware()
+except:
+    pass
 
-llusbdac_ver = "v1.0"
+
+llusbdac_ver = "v1.1"
 
 if getattr(sys, "frozen", False):
     safeloader_dir = sys._MEIPASS
@@ -127,6 +127,7 @@ if lang == 2052:
         "START": "开始安装",
         "LEAVE": "取消安装",
         "MULTI_INST": "安装工具已经在运行中，请勿多开。",
+        "INFORM_RISK": "安装 LLUSBDAC 需要修改播放器的固件。\n修改固件具有一定危险性，可能会导致失去保修，甚至损坏设备。\n本软件作者对任何损坏或损失不承担任何责任。\n\n是否继续？",
 
         "CANCEL": "取消",
         "ERROR": "错误",
@@ -135,7 +136,7 @@ if lang == 2052:
         "VERIFY_PACKAGE": "正在验证固件升级包",
         "NO_PACKAGE": "未找到固件升级包，\n",
         "BAD_PACKAGE": "固件升级包已损坏，\n",
-        "ASK_DOWNLOAD": "要立即从 SONY 服务器上下载吗？",
+        "ASK_DOWNLOAD": "要立即从 SONY 服务器上下载吗？\n\n注意：下载固件即表示您同意固件随附的条款与条件。",
         "DOWNLOAD_PROGRESS": "已下载 %.0f%%",
         "DOWNLOAD_ERROR": "下载过程中发生错误。",
         "ERR_PACKAGE": "固件升级包验证失败，无法继续安装。",
@@ -169,6 +170,7 @@ else:
         "START": "Start",
         "LEAVE": "Cancel",
         "MULTI_INST": "Installer is running. Please don't open multiple instances.",
+        "INFORM_RISK": "In order to install LLUSBDAC, installer will modify the firmware of your player.\nThis may void warranty or damage your device.\nPlease use at your own risk.\n\nContinue?",
 
         "CANCEL": "Cancel",
         "ERROR": "Error",
@@ -177,7 +179,7 @@ else:
         "VERIFY_PACKAGE": "Verifying update package ...",
         "NO_PACKAGE": "Update package not found.\n",
         "BAD_PACKAGE": "Update package corrupted.\n",
-        "ASK_DOWNLOAD": "Download it from SONY server now?",
+        "ASK_DOWNLOAD": "Download it from SONY server now?\n\nNOTE: Downloading it means you agree its EULA.",
         "DOWNLOAD_PROGRESS": "Download progress %.0f%% ...",
         "DOWNLOAD_ERROR": "Download error:",
         "ERR_PACKAGE": "Can't verify update package, installation aborted.",
@@ -246,15 +248,20 @@ def download(url, filepath, check_cancel_fn, progress_fn):
 c = wmi.WMI()
 
 
-# single instance
+# allow only one instance
 def single_instance():
     mutex = win32event.CreateMutex(None, True, "LLUSBDAC_INSTALLER_MUTEX")
     ret = win32event.WaitForSingleObject(mutex, 2000)
     if ret != win32event.WAIT_OBJECT_0 and ret != win32event.WAIT_ABANDONED:
-        win32api.MessageBox(None, S["MULTI_INST"], S["TITLE"], win32con.MB_ICONERROR)
+        win32api.MessageBox(None, S["MULTI_INST"], S["TITLE"], win32con.MB_ICONERROR | win32con.MB_TOPMOST)
         die(1)
     mutex.Detach()
 single_instance()
+
+
+# inform user the risk
+if win32api.MessageBox(None, S["INFORM_RISK"], S["TITLE"], win32con.MB_ICONWARNING | win32con.MB_YESNO | win32con.MB_TOPMOST) != win32con.IDYES:
+    die(1)
 
 
 # ask user for installer options

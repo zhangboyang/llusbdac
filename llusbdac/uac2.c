@@ -28,11 +28,28 @@
 #include "llusbdac.h"
 
 // dirty things
-#include <linux/irq.h>
-#include <linux/irqdesc.h>
 #include <linux/musb/musb_core.h>
+#include <net/net_namespace.h>
+#include <net/netlink.h>
 static void (**p_pf_get_uac2_buf_status)(u32 *status);
 #define pf_get_uac2_buf_status (*p_pf_get_uac2_buf_status)
+static void (*p_uac2_netlink_rcv)(struct sk_buff *__skb);
+#define uac2_netlink_rcv p_uac2_netlink_rcv
+static struct sock * uac2_netlink_init(void)
+{
+	struct sock *uac2sock;
+	struct netlink_kernel_cfg cfg = {
+		.input	= uac2_netlink_rcv,
+	};
+	uac2sock = netlink_kernel_create(&init_net, NETLINK_UAC2, &cfg);
+	//printk("uac2sock=%p\n", uac2sock);
+	return uac2sock;
+}
+static void uac2_netlink_exit(struct sock *sock)
+{
+	netlink_kernel_release(sock);
+}
+
 
 #ifndef __LITTLE_ENDIAN
 #error
@@ -98,6 +115,8 @@ struct audio_dev {
 	struct usb_ep *fb_ep;
 	struct usb_function func;
 
+	struct sock *sock;
+
 	void *rbuf;
 	unsigned max_psize;
 	struct uac2_req ureq[USB_XFERS];
@@ -116,7 +135,7 @@ struct audio_dev *func_to_agdev(struct usb_function *f)
 	return container_of(f, struct audio_dev, func);
 }
 
-#define FEEDBACK_PERIOD 8   // xref: hs_epfb_desc.bInterval, do_dirty_musb_hook
+#define FEEDBACK_PERIOD 8   // xref: hs_epfb_desc.bInterval
 static unsigned fb_low_limit, fb_high_limit;
 void set_feedback_limits_base10000(unsigned low_limit, unsigned high_limit)
 {
@@ -442,7 +461,7 @@ struct usb_endpoint_descriptor hs_epfb_desc = {
 	.bmAttributes = USB_ENDPOINT_XFER_ISOC | USB_ENDPOINT_USAGE_FEEDBACK,
 	.wMaxPacketSize = 512,
 	//.bInterval = 1,
-	.bInterval = 4, // xref: FEEDBACK_PERIOD, do_dirty_musb_hook
+	.bInterval = 4, // xref: FEEDBACK_PERIOD
 };
 
 
@@ -561,6 +580,8 @@ afunc_bind(struct usb_configuration *cfg, struct usb_function *fn)
 	agdev->as_out_intf = ret;
 	agdev->as_out_alt = 0;
 
+	agdev->sock = uac2_netlink_init();
+
 	agdev->out_ep = usb_ep_autoconfig(gadget, &hs_epout_desc);
 	if (!agdev->out_ep) {
 		pr_err(
@@ -611,6 +632,8 @@ afunc_unbind(struct usb_configuration *cfg, struct usb_function *fn)
 {
 	printk("afunc_unbind\n");
 	struct audio_dev *agdev = func_to_agdev(fn);
+
+	uac2_netlink_exit(agdev->sock);
 
 	usb_free_all_descriptors(fn);
 
@@ -915,7 +938,6 @@ afunc_setup(struct usb_function *fn, const struct usb_ctrlrequest *cr)
 	return value;
 }
 
-//static void do_dirty_musb_hook(int en, struct musb *musb);
 
 int audio_bind_config(struct usb_configuration *cfg)
 {
@@ -970,8 +992,6 @@ int audio_bind_config(struct usb_configuration *cfg)
 		kfree(agdev_g);
 	
 	enable_gui(1);
-
-	//do_dirty_musb_hook(1, gadget_to_musb(cfg->cdev->gadget));
 	
 	return res;
 }
@@ -979,7 +999,6 @@ int audio_bind_config(struct usb_configuration *cfg)
 void uac2_unbind_config(struct usb_configuration *cfg)
 {
 	printk("uac2_unbind_config\n");
-	//do_dirty_musb_hook(0, gadget_to_musb(cfg->cdev->gadget));
 	enable_gui(-1);
 
 	kfree(agdev_g);
@@ -996,9 +1015,8 @@ int gadget_enabled(void)
 }
 
 
-
-
 void uac2_init(void)
 {
 	IMPORT_KALLSYMS(pf_get_uac2_buf_status);
+	IMPORT_KALLSYMS(uac2_netlink_rcv);
 }

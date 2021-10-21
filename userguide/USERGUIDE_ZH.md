@@ -12,7 +12,9 @@
 
 ## 安装方法
 
-&emsp;&emsp;将设备以“USB 大容量存储”模式连接至计算机，运行 `llusbdac_installer.exe`，然后按屏幕指示操作即可。
+1. 从[索尼网站](https://service.sony.com.cn/download/firm/00002817.html)上下载 `NW-ZX300_V2_02.exe`，将它与 `llusbdac_installer.exe` 放置于同一目录下；
+2. 将设备以“USB 大容量存储”模式连接至计算机；
+3. 运行 `llusbdac_installer.exe`，然后按屏幕指示操作即可。
 
 ## 使用方法
 

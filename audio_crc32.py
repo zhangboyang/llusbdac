@@ -6,6 +6,32 @@ import struct
 import zlib
 import traceback
 import gc
+if os.name == 'nt':
+    import msvcrt
+    import win32gui
+    import win32con
+    import win32console
+    files = sys.argv[1:]
+    if not files:
+        try:
+            ret = win32gui.GetOpenFileNameW(
+                hwndOwner=win32console.GetConsoleWindow(),
+                MaxFile=1048576,
+                Flags=
+                    win32con.OFN_ALLOWMULTISELECT |
+                    win32con.OFN_PATHMUSTEXIST |
+                    win32con.OFN_FILEMUSTEXIST |
+                    win32con.OFN_HIDEREADONLY |
+                    win32con.OFN_EXPLORER |
+                    win32con.OFN_DONTADDTORECENT |
+                    win32con.OFN_NOCHANGEDIR)
+            files = ret[0].split('\0')
+            if len(files) > 1:
+                files = [os.path.join(files[0], file) for file in files[1:]]
+        except win32gui.error:
+            files = []
+else:
+    files = sys.argv[1:]
 
 if getattr(sys, "frozen", False):
     os.chdir(os.path.dirname(sys.executable))
@@ -94,15 +120,15 @@ def process(filename):
     finally:
         table.append(line)
 
-for argv in sys.argv[1:]:
-    if os.path.isdir(argv):
-        for root, dirs, files in os.walk(argv):
+for filepath in files:
+    if os.path.isdir(filepath):
+        for root, dirs, files in os.walk(filepath):
             dirs.sort()
             files.sort()
             for name in files:
                 process(os.path.join(root, name))
     else:
-        process(argv)
+        process(filepath)
 
 print("--------------+-------------------------------------------+-----------------")
 print("     TIME     |     S16LE        S24_3LE        S32LE     |      FILE")
@@ -111,4 +137,5 @@ print("\n".join(table) if table else "                 (no results)")
 print("--------------+-------------------------------------------+-----------------")
 
 if os.name == "nt":
-    os.system("pause")
+    print("  press any key to exit ... ", end='', file=sys.stderr, flush=True)
+    msvcrt.getch()

@@ -1,6 +1,6 @@
 # LLUSBDAC
 
-Low-latency (relatively) USB DAC for Sony NW-ZX300A
+Low-latency (relatively) USB DAC for Sony NW-ZX300 Series
 
 ## User Guide
 
@@ -13,6 +13,7 @@ Low-latency (relatively) USB DAC for Sony NW-ZX300A
 * Show audio sample rate, bit depth, and CRC32 checksum
 * Works as a USB Audio Class 2.0 device
 * Only supports PCM audio
+* Only tested on model NW-ZX300A currently
 
 <img src="userguide/page1.png" width="216" height="176"/>
 

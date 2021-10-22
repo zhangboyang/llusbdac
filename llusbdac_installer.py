@@ -34,7 +34,7 @@ except:
     pass
 
 
-llusbdac_ver = "v1.2"
+llusbdac_ver = "2.0"
 
 if getattr(sys, "frozen", False):
     safeloader_dir = sys._MEIPASS
@@ -119,11 +119,11 @@ if lang == 2052:
 
         "TITLE": "LLUSBDAC 安装工具",
         "OPT_TITLE": "将安装 SONY 固件 %s，请选择额外功能" % firmware_ver,
-        "OPT_LLUSBDAC": "安装 LLUSBDAC " + llusbdac_ver,
+        "OPT_LLUSBDAC": "安装 LLUSBDAC v" + llusbdac_ver,
         "OPT_PANIC2SCREEN": "当发生内核错误时，蓝屏并显示错误信息",
         "OPT_ENABLEADB": "启用 ADB （安卓调试桥）",
         "WARNING": "注意",
-        "WARNING_ADB": "启用 ADB 后，若要禁用 ADB，需要进行以下操作：\n（1）重新刷写未修改的固件；\n（2）初始化所有设置。\n确定要继续吗？",
+        "WARNING_ADB": "启用 ADB 后，若要禁用 ADB，需要进行以下操作：\n（1）重新刷写未修改的固件；\n（2）初始化所有设置。\n\n确定要继续吗？",
         "START": "开始安装",
         "LEAVE": "取消安装",
         "MULTI_INST": "安装工具已经在运行中，请勿多开。",
@@ -148,7 +148,7 @@ if lang == 2052:
         "UPLOAD_SCRIPT": "正在向 %s 写入安装脚本",
 
         "RUN_LAUNCHER": "正在解压缩固件升级包\n过程中请勿进行手动操作",
-        "NO_FIRMWARE": "找不到所需固件文件，无法继续安装。\n（提示：多开？不是管理员？）",
+        "NO_FIRMWARE": "找不到所需固件文件，无法继续安装。\n（提示：多开？）",
         "NO_DIALOG": "找不到固件升级窗口，无法继续安装。\n（提示：多开？）",
 
         "PATCH_FIRMWARE": "正在修改固件文件\n过程中请勿进行手动操作",
@@ -162,11 +162,11 @@ else:
 
         "TITLE": "LLUSBDAC Installer",
         "OPT_TITLE": "Install SONY firmware %s with extra features:" % firmware_ver,
-        "OPT_LLUSBDAC": "Install LLUSBDAC " + llusbdac_ver,
+        "OPT_LLUSBDAC": "Install LLUSBDAC v" + llusbdac_ver,
         "OPT_PANIC2SCREEN": "Show BSoD if player kernel panic",
         "OPT_ENABLEADB": "Enable ADB (Android Debug Bridge)",
         "WARNING": "Warning",
-        "WARNING_ADB": "After enabled ADB, if you want to disable ADB, you must:\n 1. Flash the unmodified firmware.\n 2. Reset all settings.\nConfirm?",
+        "WARNING_ADB": "After enabled ADB, if you want to disable ADB, you must:\n 1. Flash the unmodified firmware.\n 2. Reset all settings.\n\nConfirm?",
         "START": "Start",
         "LEAVE": "Cancel",
         "MULTI_INST": "Installer is running. Please don't open multiple instances.",
@@ -191,7 +191,7 @@ else:
         "UPLOAD_SCRIPT": "Writing installation script to %s ...",
 
         "RUN_LAUNCHER": "Unpacking update package ...\nPlease do NOT do manual operations.",
-        "NO_FIRMWARE": "Firmware not found, installation aborted.\n(Hint: Multiple instances opened? Not administrator?)",
+        "NO_FIRMWARE": "Firmware not found, installation aborted.\n(Hint: Multiple instances opened?)",
         "NO_DIALOG": "Updater window not found, installation aborted.\n(Hint: Multiple instances opened?)",
 
         "PATCH_FIRMWARE": "Patching firmware ...\nPlease do NOT do manual operations.",
@@ -567,22 +567,24 @@ try:
     def launcher_alive():
         return win32process.GetExitCodeProcess(hProcess) == win32con.STILL_ACTIVE
     def find_updater():
-        try:
-            processes = c.Win32_Process(ProcessId=dwProcessId)
-            while launcher_alive():
-                pids = set([process.ProcessId for process in processes])
-                for pid in pids:
+        pids = { dwProcessId }
+        while launcher_alive():
+            try:
+                for pid in pids.copy():
                     for process in c.Win32_Process(ParentProcessId=pid):
-                        if process.ProcessId not in pids:
-                            processes.append(process)
-                for process in processes:
-                    if process.Name.lower() == "SoftwareUpdateTool.exe".lower():
-                        return (process, os.path.join(os.path.dirname(process.ExecutablePath), "Data", "Device", "NW_WM_FW.UPG"))
-                time.sleep(0.01)
-            return None, None
-        except:
-            return None, None
-    fwupdater, fwpath = find_updater()
+                        child_pid = process.ProcessId
+                        child_name = process.Name
+                        child_path = process.ExecutablePath
+                        if child_pid is None or child_name is None or child_path is None:
+                            continue
+                        pids.add(child_pid)
+                        if child_name.lower() == "SoftwareUpdateTool.exe".lower():
+                            return (process, os.path.join(os.path.dirname(child_path), "Data", "Device", "NW_WM_FW.UPG"))
+            except:
+                pass
+            time.sleep(0.01)
+        return None, None
+    fwupdater, fwpath = find_updater()  # need administrator
     if fwpath is None:
         ProgressManager.fail(S["NO_FIRMWARE"])
     def find_dialog():

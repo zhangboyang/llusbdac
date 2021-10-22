@@ -1,6 +1,6 @@
 ## panic2screen: Dump panic message to screen
 
-* For Sony NW-ZX300A only
+* For Sony NW-ZX300 only
 * Useful for debugging kernel code
 * Configurable display style & reboot behaviour
 

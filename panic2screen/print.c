@@ -1,5 +1,5 @@
 // dump panic message to screen
-// for NW-ZX300A only
+// for NW-ZX300 only
 // various code snippets copied from vendor kernel (under GPLv2)
 
 #define DUMP_ALL_KMSG 1

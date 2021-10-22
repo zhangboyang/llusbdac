@@ -2,7 +2,7 @@
 
 ## Features
 
-LLUSBDAC can change your NW-ZX300A as a USB sound card. The overall latency is about 50 milliseconds. It can also show infomation while playing audio, like sample rate, bit depth, CRC32 checksum, etc. Only PCM audio is supported, DSD audio is not supported.
+LLUSBDAC can change your NW-ZX300 as a USB sound card. The overall latency is about 50 milliseconds. It can also show infomation while playing audio, like sample rate, bit depth, CRC32 checksum, etc. Only PCM audio is supported, DSD audio is not supported.
 
 Installer only supports Windows operating system. However, after installation into the device, it can work without Windows. Supported operating systems are:
 

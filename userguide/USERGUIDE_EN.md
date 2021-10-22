@@ -7,14 +7,15 @@ LLUSBDAC can change your NW-ZX300A as a USB sound card. The overall latency is a
 Installer only supports Windows operating system. However, after installation into the device, it can work without Windows. Supported operating systems are:
 
 * Windows 10, 1703 or higher
-* macOS, iOS, iPadOS
+* macOS, iPadOS, iOS
 * Linux
 
 ## Installation
 
 1. Download `NW-ZX300_V2_02.exe` from [sony website](https://www.sony.com/electronics/support/digital-music-players-nw-nwz-zx-series/nw-zx300/downloads/00016328), put it along with `llusbdac_installer.exe`.
-2. Connect your device to a computer as "USB mass storage device".
-3. Run `llusbdac_installer.exe` and follow instructions on screen.
+2. Close unnecessary running applications, disconnect unnecessary USB devices from computer.
+3. Connect your device to a computer as "USB mass storage device".
+4. Run `llusbdac_installer.exe` and follow instructions on screen.
 
 ## Usage
 

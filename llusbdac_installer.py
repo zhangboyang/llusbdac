@@ -34,7 +34,7 @@ except:
     pass
 
 
-llusbdac_ver = "v1.1"
+llusbdac_ver = "v1.2"
 
 if getattr(sys, "frozen", False):
     safeloader_dir = sys._MEIPASS
@@ -283,7 +283,7 @@ def ask_options():
             style = win32con.DS_SETFONT | win32con.DS_MODALFRAME | win32con.WS_POPUP | win32con.WS_SYSMENU | win32con.WS_VISIBLE | win32con.WS_CAPTION | win32con.CS_DBLCLKS
             s = win32con.WS_CHILD | win32con.WS_VISIBLE
             win32gui.DialogBoxIndirect(win32gui.dllhandle, [
-                [S["TITLE"], (0, 0, 180, 100), style, None, (12, S["DLGFONT"]), None, self.className],
+                [S["TITLE"], (0, 0, 180, 100), style, win32con.WS_EX_TOPMOST, (12, S["DLGFONT"]), None, self.className],
                 [128, S["START"], win32con.IDOK, (30, 76, 50, 15), s | win32con.WS_TABSTOP | win32con.BS_DEFPUSHBUTTON],
                 [128, S["LEAVE"], win32con.IDCANCEL, (100, 76, 50, 15), s | win32con.WS_TABSTOP | win32con.BS_PUSHBUTTON],
                 [130, S["OPT_TITLE"], -1, (10, 9, 170, 15), s | win32con.SS_LEFT],
@@ -312,7 +312,7 @@ def ask_options():
             pl, pt, pr, pb = win32gui.GetWindowRect(win32gui.GetDesktopWindow())
             xoff = ((pr - pl) - (r - l)) // 2
             yoff = ((pb - pt) - (b - t)) // 2
-            win32gui.SetWindowPos(hwnd, win32con.HWND_TOP, pl + xoff, pt + yoff, 0, 0, win32con.SWP_NOSIZE)
+            win32gui.SetWindowPos(hwnd, win32con.HWND_TOPMOST, pl + xoff, pt + yoff, 0, 0, win32con.SWP_NOSIZE)
             win32gui.SendMessage(win32gui.GetDlgItem(hwnd, 1000), win32con.BM_SETCHECK, win32con.BST_CHECKED, 0)
             win32gui.SendMessage(win32gui.GetDlgItem(hwnd, 1001), win32con.BM_SETCHECK, win32con.BST_CHECKED, 0)
     dlg = InstallerOptionsDialog()
@@ -450,24 +450,36 @@ try:
     def find_walkman():
         try:
             drives = []
-            for disk in c.Win32_DiskDrive(Model="SONY WALKMAN USB Device"):
+            for disk in c.Win32_DiskDrive(Model="SONY WALKMAN USB Device", SCSILogicalUnit=0):
                 for partition in disk.associators("Win32_DiskDriveToDiskPartition"):
                     for drive in partition.associators("Win32_LogicalDiskToPartition"):
                         drives.append(drive.DeviceID)
             return drives[0] + "\\" if len(drives) == 1 else None
         except:
             return None
+    last_ts = time.time()
+    last_drive = None
     while True:
-        drive = find_walkman()
-        if drive:
-            break
+        now_ts = time.time()
+        now_drive = find_walkman()
+        if now_drive != last_drive:
+            if now_drive is not None:
+                ProgressManager.progress(S["WALKMAN_AT"] % now_drive)
+            elif last_drive is not None:
+                ProgressManager.progress(S["NO_WALKMAN"])
+            last_ts = now_ts
+            last_drive = now_drive
+        if now_ts - last_ts > 2:
+            if now_drive is not None:
+                drive = now_drive
+                break
+            else:
+                ProgressManager.progress(S["NO_WALKMAN"])
+                last_ts = now_ts
         ProgressManager.check_cancel()
-        ProgressManager.progress(S["NO_WALKMAN"])
         time.sleep(0.1)
     ProgressManager.check_cancel()
     ProgressManager.no_cancel()
-    ProgressManager.progress(S["WALKMAN_AT"] % drive)
-    time.sleep(1.5)
 
 
     # upload script

@@ -3,7 +3,7 @@
 #include <linux/hrtimer.h>
 #include <linux/ktime.h>
 
-#define LLUSBDAC_VERSTRING "1.1"
+#define LLUSBDAC_VERSTRING "1.2"
 #define LLUSBDAC_IDVENDER 0x054C
 #define LLUSBDAC_IDPRODUCT 0x0B8B
 #define LLUSBDAC_NAME "LLUSBDAC (NW-ZX300A)"

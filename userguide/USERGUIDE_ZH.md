@@ -7,14 +7,15 @@
 &emsp;&emsp;安装工具仅支持 Windows 系统，但成功安装到设备中后，后续使用过程无须 Windows 系统。使用时支持的系统如下：
 
 * Windows 10, 1703 版本或更高
-* macOS, iOS, iPadOS
+* macOS, iPadOS, iOS
 * Linux
 
 ## 安装方法
 
 1. 从[索尼网站](https://service.sony.com.cn/download/firm/00002817.html)上下载 `NW-ZX300_V2_02.exe`，将它与 `llusbdac_installer.exe` 放置于同一目录下；
-2. 将设备以“USB 大容量存储”模式连接至计算机；
-3. 运行 `llusbdac_installer.exe`，然后按屏幕指示操作即可。
+2. 关闭计算机上不必要的程序，断开计算机与不必要的 USB 设备的连接；
+3. 将播放器设备以“USB 大容量存储”模式连接至计算机；
+4. 运行 `llusbdac_installer.exe`，然后按屏幕指示操作即可。
 
 ## 使用方法
 

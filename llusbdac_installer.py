@@ -64,16 +64,16 @@ firmware_ver = "v2.02"
 package_exe = "NW-ZX300_V2_02.exe"
 package_url = "http://walkman.update.sony.net/fw/pc/ZX300/NW-ZX300_V2_02.exe"
 package_sha256 = "c8a533db5d3638407e93446f5702f2e1b641db05dd68790a76d2a05aa16a1c66"
-firmware_patched_sha256 = "645bd7efce6835487787197c3def64ed5b1f73a667a35c732c63d89e734d4c10"
+firmware_patched_sha256 = "f02d8b93fa662bde04ccd4d44a5a5b7a6c0fbdf2db683840a0a0f58e1e35e96c"
 firmware_patches = [
 #   These patches inject following commands to firmware update script:
-#       sleep 3
+#       sleep 5
 #       mount -o remount,rw /contents
-#       (cd /contents && busybox sha256sum -c LLUSBDAC.SUM && busybox sh LLUSBDAC.DAT && rm -f LLUSBDAC.SUM LLUSBDAC.DAT)
+#       (cd /contents && /xbin/busybox sh LLUSBDAC.DAT && /xbin/busybox rm -f LLUSBDAC.SUM LLUSBDAC.DAT)
 #       mount -o remount,ro /contents
 #       sync
 #       sync
-#       sleep 3
+#       sleep 5
 #
 #   You can use following steps to generate these blobs:
 #       # upgtool is come from rockbox project
@@ -84,31 +84,31 @@ firmware_patches = [
 #       ./upgtool -d -c -m nw-zx300 MYFW.UPG $(ls UNPACK* | sort -V)
 #       diff <(xxd -g1 NW_WM_FW.UPG) <(xxd -g1 MYFW.UPG)
 #
-    (0, base64.b64decode(b"78y4mUt4s/UA33XiWGc0ow==")),
+    (0, base64.b64decode(b"439S8c/QBr+dup40cUHahA==")),
     (0x1BB0, base64.b64decode(b"""
-        VM1XFkDbOoTZSENbF5sYE2wRcY+Epn88/kJh3rJzb2GDKBR0dS17p/ouR3Pq58zWWUFdWYqgJNnP
-        rsx/+mZ6yB1zfAjofALljxHdXSPrlPPMud4pnpZJe2BqyDCmmj5McojSuhvmJIa/BVmqIBf+F4sf
-        DFNOQQHcusnqFsKwu31vdBHvOR4Iu0HfR4JE8UQFTdjyvCZGZc4KKrVERMzXhwonn4XHpRp2ZA2V
-        t1HkzmBjvdkmcVzuJGGHWhi1zEXjkSP7G3S+VtWIWTXGpMG5L/IKRFjk4bhNHgVC0xuzulegzeHb
-        tdJH5XgrNn6KvmckhP51KtZpA5BGtPKgi2sgYISJQPEQbZvDHwriCn3IbfUi67WH9Zv7LQGqtQ/s
-        n/a9oPDNXLKTDusIw3uphQThPsHGmIw06GKrIhUYytEnOrCoHL9hr/a1ifiuCr+HrvROdQPY8iPT
-        hNUY6/bzfxTqinmvTVZRMRjMaxX9HahANqIT5bdjl/NtDgK8TGFvd4VopAk3c4WAuZqPk6DS8IzP
-        xRD17agdfU+a37MX3lc0yS/J5PXc38bchxxUHN74+tQRMj7wR2XqLTTkxXkp69/9r9GGOJ7OmAxU
-        4UF+uyfF4NkAe3CYPPlJSldAMcK0cS2SR0vNvUF4tNylgKa1wlqQD3DPTvm9tjZCKUee5HLRGsiJ
-        HSRtEIeEn5T9WIIKl7XKDRgLxDCj2N3BNICVZo9ngNgHv0Qj4r92dbl50R2iCnfmQUFP4vHXkAFj
-        f77qBlSMuvygRCQLxBPhAiFukm2ZfFYkQTzENP32wPfeomFMUIW8ePoVuEUBWkxzjActHstYQGPa
-        FWWjwpifCRcEpQgLtVmaTzm1Ulkgiv6db3wv4sPI29k3oBx/1zrpse1x8PDT/TZWUo6kk1ppPOGa
-        JpuOpcIKv2MrU6Rb0QVFuZN7s9lFo3bUeSzeaa+/pXwzFLjlhNW1hs4ubbLyJawQF8Qm2SNzZuwg
-        SAbAzXMEpXnTo1n/7IA5F6OQWtcuM/q+OEM7vtb0Vjqvr/YshqDVoVBwWDWWidCqExdG2HitzJCc
-        SosWR5aqap7OkctRRpkWkKlNCfCsIrVCAt3jH/r+8xKNVPIO78NJ5OX9OFVawn3la62F4SE5TN8C
-        YH9nWLT3zpGYJaW34sCVflybxZGNO2WZoGzkKG6NSh7dLewNjCF//n1h6TjQUA4tJZV+QEpDrvkN
-        +ix6ftrh8PCQ0B5iPfKhR9t36wRDNt+WGSP9o5twlaJETvO0oS1YOg7EiBLAdn26duWZ5OxjJHhr
-        IkDzVqNrdrfNIbvZDPS0ggOyAZlmI/jPMBzdh/XMhIMcb2glCjsHyPKk7mjCGHA8wZfrlybvsnQ/
-        QhY/vyJ9UafoNMtglmQDD8w707qwS8TtziqwO1vJtIp4F3LOu/joARe7QwnpJPARg6WzuhDNffZL
-        7NiAFRzpcctzV2mW8a6qJi97azls177qD8qel4QlPu+FrE7yFEY7wAtQ1zBy0YWDOz9fnxo38sjY
-        IOSZ1L18LrDK9E5cKgi2OFIK4chvau5MQVrUCKSHg9Em3j+CB3ui0umDmtyymWHiVdIIFikGPSqJ
-        2YmSjeqlvBXriwvBlT08QPSzXh8HRwUrHYeAnwr+c4jSaZeynBFhFuO/mYY2bUGDWJVtEQbCiPnQ
-        3qjzjO3G2yGPdNHgRzl1Tqs+Jqa6a7bRbgTJ5cYXhYlbsZ/NXqEhG+QR""")),
+        3mQdISmBN72VAlEijPg2rvBWasPbkcUf3pW5ebrIzNk+oXfTJ4uvX1HghZwMIHE2HH9pl6NIZjOQ
+        GnWFHFxJwu5Um664Xk8tiTad46N3nkp2h/ogvm7dH/kzVW6Gi44HFWAQOTSYbNBEXNlZkkNGx93b
+        6u+OXqJgr3+YkP4yVR/jnw3cMkEt6kKWzhU9lX1OYz7jDcNeLWhaAD3M71CR/ZWJ7s9HXAKUgRru
+        XpchsbojQ9L0+BeQ58ddyxELNjcGcMkysyTyFl2Yrea2kvSOKGOR6tRpNZ9y1lVYFx48/n7keK78
+        NUJiiETXYeTVN6bRgAkQiirV3D2HMChR2YfWWm+D/Ns0SrcJdxdj4QNJ8w+mwaKTnY/r8L7xrrvJ
+        kbbiUnjcI8mpPBQPN+GbnURxRYapSk6mFOl021ayoP5Rl+4kXdDOJeOILdwaJN5K2ej1TGuZiIE6
+        f6Xz6/Ou5yh5RnsgVMrPYQNn5mBnueRFCVhvSaq0dI0v2Ul0gH2RQXr7QevcOHToVUu6kZPlG+aX
+        tVlOBW8El0+InQuuqWC3NvfXMhVGrN9bp6zZG4iKIwD5gmtjMB/LWdaRhFGU/tvHkNqYxCvnVzJg
+        3pAVx4UW++04LtPGngMT5lOkxpKkZ3vttxzov9XPQSfVwFPn7MFqxmWxbJEDge1aHvAcamyH4aEQ
+        KB+oRIEKsXHX03+l0gIuy0nZ7b70MSlB36mvf6JMK5HAd4Qqepzj8h1UtRRFVCX7Oi4E8/JoJv5O
+        s/r10PstzKVSi9R3qOqCpUcWYV5cVtcT2sQS3MBT/t19cbc9EDPlOPm6YudzsGUy2qlETrmRQkKD
+        t4x6ukZgckFgvKeFu2nEETneTv8uH/0C5CF7YnKLxn2aEKbDcRaMSY3uMWhLBl6uT3XPzoZ3O3P0
+        nNQ+ki0E9cTwRpGAaFxWO5QMIWGvc+40e52l5uF0O4X0NmDI3xmijFG44JYt2hxmOzXLXi7ho4He
+        kW1RSlB/o4ebskWIYYSohbQHcBcHGx+UdIOKc0cjbMWDR62w/WF95nD9IlWvyUHznUVpuPeOjI+n
+        g6kgCJUIt9WD/jX4UdajjlgMq96mDPO9sH0i/V9IEVQx16ox11OXC0XQ6beq7QqMjiBfZfvl1HwU
+        LUfLggKM0d9zKxEHOcds/kO9FbjJ5YSKU6gOCaSJVjcQEGvfMTe5Q9Qwl4JaBWcuJdSTxB4bsk7F
+        HYYmPGP5+O0rGAHkxJxo7sIzPUA+aHXpNPKNZ+S1tdULy5ZJjsdnPqJTtxuaO9FrLJBv0wvOe043
+        rvk5PYh9FVqHi5SqIKi4lfNfZqyRelmbAVo6jdZOkhCG8+jDteyCvy9yd6Sg22IscpWGFBvS9X8+
+        7rmWSXz9GGT9susuy2BXU/eYQUiqnJNEOFP8C0wnQvpqJe0bEHRrxwDlLjwDkKd8DeHr+f3oIi16
+        s/MpGZPK7kvan8sy7za1RUf4Ox5AFA9MbvI2LuA927vOQl8sFF4I9NvYaeJaV1pt0pMe4yf4pTZs
+        QMIv9NcyU0lDbC6ibd35R5k0MthgiTjH0TAlVSb2oxDvCd959QlVsDiDy9hK/1bzmVAtzaPoKA2J
+        FI6REhSp+YRjgDfc87g7YBcgf/FaSBgaCyI5sgLV5EoX1wQhhFtoG3LSbLQbMrq0wa7Imq+ho930
+        f5jR9cDYyuJIQZw42jgMsLXLfz04hQQcagN0x/eYijw77BuDo2+oMdWa""")),
 ]
 
 
@@ -122,8 +122,10 @@ if lang == 2052:
         "OPT_LLUSBDAC": "安装 LLUSBDAC v" + llusbdac_ver,
         "OPT_PANIC2SCREEN": "当发生内核错误时，蓝屏并显示错误信息",
         "OPT_ENABLEADB": "启用 ADB （安卓调试桥）",
+        "OPT_INSTALLLOG": "保存安装日志",
         "WARNING": "注意",
         "WARNING_ADB": "启用 ADB 后，若要禁用 ADB，需要进行以下操作：\n（1）重新刷写未修改的固件；\n（2）初始化所有设置。\n\n确定要继续吗？",
+        "WARNING_INSTALLLOG": "已选择“保存安装日志”。\n安装脚本的调试信息会保存至 WALKMAN 根目录下的 LLUSBDAC.LOG 文件中。",
         "START": "开始安装",
         "LEAVE": "取消安装",
         "MULTI_INST": "安装工具已经在运行中，请勿多开。",
@@ -165,8 +167,10 @@ else:
         "OPT_LLUSBDAC": "Install LLUSBDAC v" + llusbdac_ver,
         "OPT_PANIC2SCREEN": "Show BSoD if player kernel panic",
         "OPT_ENABLEADB": "Enable ADB (Android Debug Bridge)",
+        "OPT_INSTALLLOG": "Save installer log",
         "WARNING": "Warning",
         "WARNING_ADB": "After enabled ADB, if you want to disable ADB, you must:\n 1. Flash the unmodified firmware.\n 2. Reset all settings.\n\nConfirm?",
+        "WARNING_INSTALLLOG": "'Save installer log' is selected.\nInstaller debug information will be saved to 'LLUSBDAC.LOG' at WALKMAN's root directory.",
         "START": "Start",
         "LEAVE": "Cancel",
         "MULTI_INST": "Installer is running. Please don't open multiple instances.",
@@ -283,13 +287,14 @@ def ask_options():
             style = win32con.DS_SETFONT | win32con.DS_MODALFRAME | win32con.WS_POPUP | win32con.WS_SYSMENU | win32con.WS_VISIBLE | win32con.WS_CAPTION | win32con.CS_DBLCLKS
             s = win32con.WS_CHILD | win32con.WS_VISIBLE
             win32gui.DialogBoxIndirect(win32gui.dllhandle, [
-                [S["TITLE"], (0, 0, 180, 100), style, win32con.WS_EX_TOPMOST, (12, S["DLGFONT"]), None, self.className],
-                [128, S["START"], win32con.IDOK, (30, 76, 50, 15), s | win32con.WS_TABSTOP | win32con.BS_DEFPUSHBUTTON],
-                [128, S["LEAVE"], win32con.IDCANCEL, (100, 76, 50, 15), s | win32con.WS_TABSTOP | win32con.BS_PUSHBUTTON],
+                [S["TITLE"], (0, 0, 180, 115), style, win32con.WS_EX_TOPMOST, (12, S["DLGFONT"]), None, self.className],
+                [128, S["START"], win32con.IDOK, (30, 91, 50, 15), s | win32con.WS_TABSTOP | win32con.BS_DEFPUSHBUTTON],
+                [128, S["LEAVE"], win32con.IDCANCEL, (100, 91, 50, 15), s | win32con.WS_TABSTOP | win32con.BS_PUSHBUTTON],
                 [130, S["OPT_TITLE"], -1, (10, 9, 170, 15), s | win32con.SS_LEFT],
                 [128, S["OPT_LLUSBDAC"], 1000, (10, 24, 170, 15), s | win32con.WS_TABSTOP | win32con.BS_AUTOCHECKBOX ],
                 [128, S["OPT_PANIC2SCREEN"], 1001, (10, 39, 170, 15), s | win32con.WS_TABSTOP | win32con.BS_AUTOCHECKBOX ],
                 [128, S["OPT_ENABLEADB"], 1002, (10, 54, 170, 15), s | win32con.WS_TABSTOP | win32con.BS_AUTOCHECKBOX ],
+                [128, S["OPT_INSTALLLOG"], 1003, (10, 69, 170, 15), s | win32con.WS_TABSTOP | win32con.BS_AUTOCHECKBOX ],
             ], None, {
                 win32con.WM_COMMAND: self.OnCommand,
                 win32con.WM_INITDIALOG: self.OnInitDialog,
@@ -301,10 +306,13 @@ def ask_options():
                 cur_options = (
                     win32gui.SendMessage(win32gui.GetDlgItem(hwnd, 1000), win32con.BM_GETCHECK, 0, 0) == win32con.BST_CHECKED,
                     win32gui.SendMessage(win32gui.GetDlgItem(hwnd, 1001), win32con.BM_GETCHECK, 0, 0) == win32con.BST_CHECKED,
-                    win32gui.SendMessage(win32gui.GetDlgItem(hwnd, 1002), win32con.BM_GETCHECK, 0, 0) == win32con.BST_CHECKED)
+                    win32gui.SendMessage(win32gui.GetDlgItem(hwnd, 1002), win32con.BM_GETCHECK, 0, 0) == win32con.BST_CHECKED,
+                    win32gui.SendMessage(win32gui.GetDlgItem(hwnd, 1003), win32con.BM_GETCHECK, 0, 0) == win32con.BST_CHECKED)
                 if cur_options[2]:
                     if win32gui.MessageBox(hwnd, S["WARNING_ADB"], S["WARNING"], win32con.MB_ICONWARNING | win32con.MB_YESNO) == win32con.IDNO:
                         return
+                if cur_options[3]:
+                    win32gui.MessageBox(hwnd, S["WARNING_INSTALLLOG"], S["WARNING"], win32con.MB_ICONWARNING)
                 self.options = cur_options
                 win32gui.EndDialog(hwnd, 0)
         def OnInitDialog(self, hwnd, msg, wparam, lparam):
@@ -321,7 +329,7 @@ def ask_options():
 options = ask_options()
 if options is None:
     die(1)
-opt_llusbdac, opt_panic2screen, opt_enableadb = options
+opt_llusbdac, opt_panic2screen, opt_enableadb, opt_installlog = options
 
 
 # start progress dialog
@@ -506,11 +514,17 @@ try:
         b"# automatically generated shell script for LLUSBDAC installation",
         b"#   this script file (LLUSBDAC.DAT) and checksum file (LLUSBDAC.SUM)",
         b"#   can be deleted safely after installation completed",
-        #b"exec > /contents/LLUSBDAC.LOG; exec 2>&1; set -x;",
         b""
     ]
+    if opt_installlog:
+        script.append(b"exec > /contents/LLUSBDAC.LOG; exec 2>&1; set -x;")
+        script.append(b"/xbin/busybox")
+        script.append(b"/xbin/busybox uname -a")
+        script.append(b"echo \"$PATH\"")
+        script.append(b"mount")
+        script.append(b"")
     def gen_file(file_bytes, target_path):
-        script.append(b"busybox base64 -d << 'END_OF_BASE64' | busybox xz -d -c > '%s'" % target_path)
+        script.append(b"/xbin/busybox base64 -d << 'END_OF_BASE64' | /xbin/busybox xz -d -c > '%s'" % target_path)
         blob = base64.b64encode(lzma.compress(file_bytes, preset=9|lzma.PRESET_EXTREME))
         for i in range(0, len(blob), 76):
             script.append(blob[i:i + 76])

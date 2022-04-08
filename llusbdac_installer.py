@@ -64,16 +64,16 @@ firmware_ver = "v2.02"
 package_exe = "NW-ZX300_V2_02.exe"
 package_url = "http://walkman.update.sony.net/fw/pc/ZX300/NW-ZX300_V2_02.exe"
 package_sha256 = "c8a533db5d3638407e93446f5702f2e1b641db05dd68790a76d2a05aa16a1c66"
-firmware_patched_sha256 = "f02d8b93fa662bde04ccd4d44a5a5b7a6c0fbdf2db683840a0a0f58e1e35e96c"
+firmware_patched_sha256 = "645bd7efce6835487787197c3def64ed5b1f73a667a35c732c63d89e734d4c10"
 firmware_patches = [
 #   These patches inject following commands to firmware update script:
-#       sleep 5
+#       sleep 3
 #       mount -o remount,rw /contents
-#       (cd /contents && /xbin/busybox sh LLUSBDAC.DAT && /xbin/busybox rm -f LLUSBDAC.SUM LLUSBDAC.DAT)
+#       (cd /contents && busybox sha256sum -c LLUSBDAC.SUM && busybox sh LLUSBDAC.DAT && rm -f LLUSBDAC.SUM LLUSBDAC.DAT)
 #       mount -o remount,ro /contents
 #       sync
 #       sync
-#       sleep 5
+#       sleep 3
 #
 #   You can use following steps to generate these blobs:
 #       # upgtool is come from rockbox project
@@ -84,31 +84,31 @@ firmware_patches = [
 #       ./upgtool -d -c -m nw-zx300 MYFW.UPG $(ls UNPACK* | sort -V)
 #       diff <(xxd -g1 NW_WM_FW.UPG) <(xxd -g1 MYFW.UPG)
 #
-    (0, base64.b64decode(b"439S8c/QBr+dup40cUHahA==")),
+    (0, base64.b64decode(b"78y4mUt4s/UA33XiWGc0ow==")),
     (0x1BB0, base64.b64decode(b"""
-        3mQdISmBN72VAlEijPg2rvBWasPbkcUf3pW5ebrIzNk+oXfTJ4uvX1HghZwMIHE2HH9pl6NIZjOQ
-        GnWFHFxJwu5Um664Xk8tiTad46N3nkp2h/ogvm7dH/kzVW6Gi44HFWAQOTSYbNBEXNlZkkNGx93b
-        6u+OXqJgr3+YkP4yVR/jnw3cMkEt6kKWzhU9lX1OYz7jDcNeLWhaAD3M71CR/ZWJ7s9HXAKUgRru
-        XpchsbojQ9L0+BeQ58ddyxELNjcGcMkysyTyFl2Yrea2kvSOKGOR6tRpNZ9y1lVYFx48/n7keK78
-        NUJiiETXYeTVN6bRgAkQiirV3D2HMChR2YfWWm+D/Ns0SrcJdxdj4QNJ8w+mwaKTnY/r8L7xrrvJ
-        kbbiUnjcI8mpPBQPN+GbnURxRYapSk6mFOl021ayoP5Rl+4kXdDOJeOILdwaJN5K2ej1TGuZiIE6
-        f6Xz6/Ou5yh5RnsgVMrPYQNn5mBnueRFCVhvSaq0dI0v2Ul0gH2RQXr7QevcOHToVUu6kZPlG+aX
-        tVlOBW8El0+InQuuqWC3NvfXMhVGrN9bp6zZG4iKIwD5gmtjMB/LWdaRhFGU/tvHkNqYxCvnVzJg
-        3pAVx4UW++04LtPGngMT5lOkxpKkZ3vttxzov9XPQSfVwFPn7MFqxmWxbJEDge1aHvAcamyH4aEQ
-        KB+oRIEKsXHX03+l0gIuy0nZ7b70MSlB36mvf6JMK5HAd4Qqepzj8h1UtRRFVCX7Oi4E8/JoJv5O
-        s/r10PstzKVSi9R3qOqCpUcWYV5cVtcT2sQS3MBT/t19cbc9EDPlOPm6YudzsGUy2qlETrmRQkKD
-        t4x6ukZgckFgvKeFu2nEETneTv8uH/0C5CF7YnKLxn2aEKbDcRaMSY3uMWhLBl6uT3XPzoZ3O3P0
-        nNQ+ki0E9cTwRpGAaFxWO5QMIWGvc+40e52l5uF0O4X0NmDI3xmijFG44JYt2hxmOzXLXi7ho4He
-        kW1RSlB/o4ebskWIYYSohbQHcBcHGx+UdIOKc0cjbMWDR62w/WF95nD9IlWvyUHznUVpuPeOjI+n
-        g6kgCJUIt9WD/jX4UdajjlgMq96mDPO9sH0i/V9IEVQx16ox11OXC0XQ6beq7QqMjiBfZfvl1HwU
-        LUfLggKM0d9zKxEHOcds/kO9FbjJ5YSKU6gOCaSJVjcQEGvfMTe5Q9Qwl4JaBWcuJdSTxB4bsk7F
-        HYYmPGP5+O0rGAHkxJxo7sIzPUA+aHXpNPKNZ+S1tdULy5ZJjsdnPqJTtxuaO9FrLJBv0wvOe043
-        rvk5PYh9FVqHi5SqIKi4lfNfZqyRelmbAVo6jdZOkhCG8+jDteyCvy9yd6Sg22IscpWGFBvS9X8+
-        7rmWSXz9GGT9susuy2BXU/eYQUiqnJNEOFP8C0wnQvpqJe0bEHRrxwDlLjwDkKd8DeHr+f3oIi16
-        s/MpGZPK7kvan8sy7za1RUf4Ox5AFA9MbvI2LuA927vOQl8sFF4I9NvYaeJaV1pt0pMe4yf4pTZs
-        QMIv9NcyU0lDbC6ibd35R5k0MthgiTjH0TAlVSb2oxDvCd959QlVsDiDy9hK/1bzmVAtzaPoKA2J
-        FI6REhSp+YRjgDfc87g7YBcgf/FaSBgaCyI5sgLV5EoX1wQhhFtoG3LSbLQbMrq0wa7Imq+ho930
-        f5jR9cDYyuJIQZw42jgMsLXLfz04hQQcagN0x/eYijw77BuDo2+oMdWa""")),
+        VM1XFkDbOoTZSENbF5sYE2wRcY+Epn88/kJh3rJzb2GDKBR0dS17p/ouR3Pq58zWWUFdWYqgJNnP
+        rsx/+mZ6yB1zfAjofALljxHdXSPrlPPMud4pnpZJe2BqyDCmmj5McojSuhvmJIa/BVmqIBf+F4sf
+        DFNOQQHcusnqFsKwu31vdBHvOR4Iu0HfR4JE8UQFTdjyvCZGZc4KKrVERMzXhwonn4XHpRp2ZA2V
+        t1HkzmBjvdkmcVzuJGGHWhi1zEXjkSP7G3S+VtWIWTXGpMG5L/IKRFjk4bhNHgVC0xuzulegzeHb
+        tdJH5XgrNn6KvmckhP51KtZpA5BGtPKgi2sgYISJQPEQbZvDHwriCn3IbfUi67WH9Zv7LQGqtQ/s
+        n/a9oPDNXLKTDusIw3uphQThPsHGmIw06GKrIhUYytEnOrCoHL9hr/a1ifiuCr+HrvROdQPY8iPT
+        hNUY6/bzfxTqinmvTVZRMRjMaxX9HahANqIT5bdjl/NtDgK8TGFvd4VopAk3c4WAuZqPk6DS8IzP
+        xRD17agdfU+a37MX3lc0yS/J5PXc38bchxxUHN74+tQRMj7wR2XqLTTkxXkp69/9r9GGOJ7OmAxU
+        4UF+uyfF4NkAe3CYPPlJSldAMcK0cS2SR0vNvUF4tNylgKa1wlqQD3DPTvm9tjZCKUee5HLRGsiJ
+        HSRtEIeEn5T9WIIKl7XKDRgLxDCj2N3BNICVZo9ngNgHv0Qj4r92dbl50R2iCnfmQUFP4vHXkAFj
+        f77qBlSMuvygRCQLxBPhAiFukm2ZfFYkQTzENP32wPfeomFMUIW8ePoVuEUBWkxzjActHstYQGPa
+        FWWjwpifCRcEpQgLtVmaTzm1Ulkgiv6db3wv4sPI29k3oBx/1zrpse1x8PDT/TZWUo6kk1ppPOGa
+        JpuOpcIKv2MrU6Rb0QVFuZN7s9lFo3bUeSzeaa+/pXwzFLjlhNW1hs4ubbLyJawQF8Qm2SNzZuwg
+        SAbAzXMEpXnTo1n/7IA5F6OQWtcuM/q+OEM7vtb0Vjqvr/YshqDVoVBwWDWWidCqExdG2HitzJCc
+        SosWR5aqap7OkctRRpkWkKlNCfCsIrVCAt3jH/r+8xKNVPIO78NJ5OX9OFVawn3la62F4SE5TN8C
+        YH9nWLT3zpGYJaW34sCVflybxZGNO2WZoGzkKG6NSh7dLewNjCF//n1h6TjQUA4tJZV+QEpDrvkN
+        +ix6ftrh8PCQ0B5iPfKhR9t36wRDNt+WGSP9o5twlaJETvO0oS1YOg7EiBLAdn26duWZ5OxjJHhr
+        IkDzVqNrdrfNIbvZDPS0ggOyAZlmI/jPMBzdh/XMhIMcb2glCjsHyPKk7mjCGHA8wZfrlybvsnQ/
+        QhY/vyJ9UafoNMtglmQDD8w707qwS8TtziqwO1vJtIp4F3LOu/joARe7QwnpJPARg6WzuhDNffZL
+        7NiAFRzpcctzV2mW8a6qJi97azls177qD8qel4QlPu+FrE7yFEY7wAtQ1zBy0YWDOz9fnxo38sjY
+        IOSZ1L18LrDK9E5cKgi2OFIK4chvau5MQVrUCKSHg9Em3j+CB3ui0umDmtyymWHiVdIIFikGPSqJ
+        2YmSjeqlvBXriwvBlT08QPSzXh8HRwUrHYeAnwr+c4jSaZeynBFhFuO/mYY2bUGDWJVtEQbCiPnQ
+        3qjzjO3G2yGPdNHgRzl1Tqs+Jqa6a7bRbgTJ5cYXhYlbsZ/NXqEhG+QR""")),
 ]
 
 
@@ -518,18 +518,18 @@ try:
     ]
     if opt_installlog:
         script.append(b"exec > /contents/LLUSBDAC.LOG; exec 2>&1; set -x;")
-        script.append(b"/xbin/busybox")
-        script.append(b"/xbin/busybox uname -a")
-        script.append(b"echo \"$PATH\"")
+        script.append(b"busybox")
+        script.append(b"busybox uname -a")
         script.append(b"mount")
         script.append(b"")
     def gen_file(file_bytes, target_path):
-        script.append(b"/xbin/busybox base64 -d << 'END_OF_BASE64' | /xbin/busybox xz -d -c > '%s'" % target_path)
+        script.append(b"busybox base64 -d << 'END_OF_BASE64' | busybox xz -d -c > '%s'" % target_path)
         blob = base64.b64encode(lzma.compress(file_bytes, preset=9|lzma.PRESET_EXTREME))
         for i in range(0, len(blob), 76):
             script.append(blob[i:i + 76])
         script.append(b"END_OF_BASE64")
         script.append(b"")
+    script.append(b"mount -t ext4 -o ro /emmc@android /system")
     script.append(b"mount -t ext4 -o rw,remount /emmc@android /system")
     script.append(b"")
     if opt_panic2screen or opt_llusbdac:
@@ -565,6 +565,8 @@ try:
         script.append(b"EOF")
         script.append(b"")
     script.append(b"mount -t ext4 -o ro,remount /emmc@android /system")
+    script.append(b"")
+    script.append(b"exit 0")
     upload_script(script)
 
 

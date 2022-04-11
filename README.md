@@ -12,8 +12,9 @@ Low-latency (relatively) USB DAC for Sony NW-ZX300 Series
 * Relatively low-latency output (about 50ms)
 * Show audio sample rate, bit depth, and CRC32 checksum
 * Works as a USB Audio Class 2.0 device
-* Only supports PCM audio
-* Only tested on model NW-ZX300A currently
+* Only supports PCM audio (DSD is not supported)
+* Output sound as if "Direct Source" is enabled (sound effects are not supported)
+* Tested on model NW-ZX300A (see [issue #2](https://github.com/zhangboyang/llusbdac/issues/2) for other models)
 
 <img src="userguide/page1.png" width="216" height="176"/>
 

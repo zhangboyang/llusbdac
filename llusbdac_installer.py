@@ -34,7 +34,7 @@ except:
     pass
 
 
-llusbdac_ver = "2.0"
+llusbdac_ver = "v3.0"
 
 if getattr(sys, "frozen", False):
     safeloader_dir = sys._MEIPASS
@@ -119,7 +119,7 @@ if lang == 2052:
 
         "TITLE": "LLUSBDAC 安装工具",
         "OPT_TITLE": "将安装 SONY 固件 %s，请选择额外功能" % firmware_ver,
-        "OPT_LLUSBDAC": "安装 LLUSBDAC v" + llusbdac_ver,
+        "OPT_LLUSBDAC": "安装 LLUSBDAC " + llusbdac_ver,
         "OPT_PANIC2SCREEN": "当发生内核错误时，蓝屏并显示错误信息",
         "OPT_ENABLEADB": "启用 ADB （安卓调试桥）",
         "OPT_INSTALLLOG": "保存安装日志",
@@ -164,7 +164,7 @@ else:
 
         "TITLE": "LLUSBDAC Installer",
         "OPT_TITLE": "Install SONY firmware %s with extra features:" % firmware_ver,
-        "OPT_LLUSBDAC": "Install LLUSBDAC v" + llusbdac_ver,
+        "OPT_LLUSBDAC": "Install LLUSBDAC " + llusbdac_ver,
         "OPT_PANIC2SCREEN": "Show BSoD if player kernel panic",
         "OPT_ENABLEADB": "Enable ADB (Android Debug Bridge)",
         "OPT_INSTALLLOG": "Save installer log",

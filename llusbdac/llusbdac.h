@@ -3,7 +3,8 @@
 #include <linux/hrtimer.h>
 #include <linux/ktime.h>
 
-#define LLUSBDAC_VERSTRING "2.0"
+#define LLUSBDAC_VERSTRING "v3.0"
+#define LLUSBDAC_YEARSTRING "2022"
 #define LLUSBDAC_IDVENDER 0x054C
 #define LLUSBDAC_IDPRODUCT 0x0B8B
 #define LLUSBDAC_NAME "LLUSBDAC (WALKMAN)"

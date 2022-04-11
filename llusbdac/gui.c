@@ -674,14 +674,14 @@ static void update_text(void)
 
     } else if (gui_page == GUI_ABOUT) {
         snprintf(str, sizeof(str),
-            "    $gLLUSBDAC$w v%s\n"
+            "    $gLLUSBDAC$w %s\n"
             "\n"
-            "$bZhang Boyang$w (C) $b2021$w\n"
+            "$bZhang Boyang$w (C) $b%s$w\n"
             "\n"
             "     $b(GNU GPLv2)$w\n"
             "\n"
             " $ygithub: zhangboyang$w\n",
-            LLUSBDAC_VERSTRING
+            LLUSBDAC_VERSTRING, LLUSBDAC_YEARSTRING
         );
         print(2, 3, str);
     }

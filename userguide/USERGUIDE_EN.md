@@ -2,7 +2,7 @@
 
 ## Features
 
-LLUSBDAC can change your NW-ZX300 as a USB sound card. The overall latency is about 50 milliseconds. It can also show infomation while playing audio, like sample rate, bit depth, CRC32 checksum, etc. Only PCM audio is supported, DSD audio is not supported.
+LLUSBDAC can change your NW-ZX300 as a USB sound card. The overall latency is about 50 milliseconds. It can also show infomation while playing audio, like sample rate, bit depth, CRC32 checksum, etc. Only PCM audio is supported, and DSD audio is not supported. It output sound as if the "Direct Source" option is enabled, and software sound effects are not supported.
 
 Installer only supports Windows operating system. However, after installation into the device, it can work without Windows. Supported operating systems are:
 
@@ -14,8 +14,9 @@ Installer only supports Windows operating system. However, after installation in
 
 1. Download `NW-ZX300_V2_02.exe` from [sony website](https://www.sony.com/electronics/support/digital-music-players-nw-nwz-zx-series/nw-zx300/downloads/00016328), put it along with `llusbdac_installer.exe`.
 2. Close unnecessary running applications, disconnect unnecessary USB devices from computer.
-3. Connect your device to a computer as "USB mass storage device".
-4. Run `llusbdac_installer.exe` and follow instructions on screen.
+3. Remove SD card (if any) from your device.
+4. Connect your device to a computer as "USB mass storage device".
+5. Run `llusbdac_installer.exe` and follow instructions on screen.
 
 ## Usage
 
@@ -55,7 +56,7 @@ Sample results:
 ```
 
 * `TIME`: Length of audio after trimming
-* `S16LE`, `S24_3LE`, `S32LE`: The checksum value after converting audio to 16, 24 or 32 bits. Lossless convert is shown as uppercase with brackets. Lossy convert is shown as lowercase without brackets.
+* `S16LE`, `S24_3LE`, `S32LE`: The checksum value after converting (by truncating or padding zeros) audio to 16, 24 or 32 bits. Lossless convert is shown as uppercase with brackets. Lossy convert is shown as lowercase without brackets.
 * `FILE`: File name of audio file
 
 ## Source code

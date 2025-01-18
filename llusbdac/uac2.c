@@ -947,8 +947,6 @@ int audio_bind_config(struct usb_configuration *cfg)
 
 	start_player();
 
-	pf_get_uac2_buf_status = feedback_buffer_status;
-
 	int res;
 
 	agdev_g = kzalloc(sizeof *agdev_g, GFP_KERNEL);
@@ -993,12 +991,17 @@ int audio_bind_config(struct usb_configuration *cfg)
 	
 	enable_gui(1);
 	
+	pf_get_uac2_buf_status = feedback_buffer_status;
+
 	return res;
 }
 
 void uac2_unbind_config(struct usb_configuration *cfg)
 {
 	printk("uac2_unbind_config\n");
+
+	pf_get_uac2_buf_status = NULL;
+
 	enable_gui(-1);
 
 	kfree(agdev_g);

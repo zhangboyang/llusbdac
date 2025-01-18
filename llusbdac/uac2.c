@@ -41,7 +41,7 @@ static struct sock * uac2_netlink_init(void)
 	struct netlink_kernel_cfg cfg = {
 		.input	= uac2_netlink_rcv,
 	};
-	uac2sock = netlink_kernel_create(&init_net, NETLINK_UAC2, &cfg);
+	uac2sock = __netlink_kernel_create(&init_net, NETLINK_UAC2, NULL, &cfg);
 	//printk("uac2sock=%p\n", uac2sock);
 	return uac2sock;
 }
